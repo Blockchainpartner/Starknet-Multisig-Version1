@@ -25,9 +25,46 @@
                 "name": "num_confirmations",
                 "offset": 4,
                 "type": "felt"
+            },
+            {
+                "name": "rule_id",
+                "offset": 5,
+                "type": "felt"
             }
         ],
         "name": "Transaction",
+        "size": 6,
+        "type": "struct"
+    },
+    {
+        "members": [
+            {
+                "name": "owner",
+                "offset": 0,
+                "type": "felt"
+            },
+            {
+                "name": "to",
+                "offset": 1,
+                "type": "felt"
+            },
+            {
+                "name": "num_confirmations_required",
+                "offset": 2,
+                "type": "felt"
+            },
+            {
+                "name": "asset",
+                "offset": 3,
+                "type": "felt"
+            },
+            {
+                "name": "allowed_amount",
+                "offset": 4,
+                "type": "felt"
+            }
+        ],
+        "name": "Rule",
         "size": 5,
         "type": "struct"
     },
@@ -248,6 +285,35 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "get_rules_len",
+        "outputs": [
+            {
+                "name": "res",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "rule_id",
+                "type": "felt"
+            }
+        ],
+        "name": "get_rule",
+        "outputs": [
+            {
+                "name": "rule",
+                "type": "Rule"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "name": "owners_len",
@@ -283,6 +349,10 @@
             {
                 "name": "calldata",
                 "type": "felt*"
+            },
+            {
+                "name": "rule_id",
+                "type": "felt"
             }
         ],
         "name": "submit_transaction",
@@ -329,6 +399,33 @@
                 "type": "felt*"
             }
         ],
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "felt"
+            },
+            {
+                "name": "to",
+                "type": "felt"
+            },
+            {
+                "name": "num_confirmations_required",
+                "type": "felt"
+            },
+            {
+                "name": "asset",
+                "type": "felt"
+            },
+            {
+                "name": "allowed_amount",
+                "type": "felt"
+            }
+        ],
+        "name": "create_rule",
+        "outputs": [],
         "type": "function"
     }
 ]

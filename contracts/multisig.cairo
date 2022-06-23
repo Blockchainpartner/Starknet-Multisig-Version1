@@ -37,6 +37,29 @@ struct Transaction:
     member calldata_len : felt
     member executed : felt
     member num_confirmations : felt
+    member rule_id : felt
+end
+
+# Used for spending limit rules
+struct Rule:
+    member owner : felt
+    member to : felt
+    member num_confirmations_required: felt
+    member asset : felt
+    member allowed_amount : felt
+end
+
+@storage_var
+func _rules(rule_id : felt, field : felt) -> (res : felt):
+# Field enum pattern described in https://hackmd.io/@RoboTeddy/BJZFu56wF#Concise-way
+end
+
+@storage_var
+func _next_rule_id() -> (res : felt):
+end
+
+@storage_var
+func _can_use_rule(owner : felt, rule_id : felt) -> (res : felt):
 end
 
 @storage_var
@@ -144,6 +167,36 @@ func require_confirmed{
     return ()
 end
 
+# Revert if the owner who submit the transaction doesn't have rights to use the rule
+func require_rule_rights{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(rule_id : felt):
+    
+    let (rule) = get_rule(rule_id)
+    if rule.owner != 0 :
+        let (caller) = get_caller_address()
+        with_attr error_message("owner doesn't have rights to use this rule"):
+            assert caller = rule.owner
+        end
+        return ()
+    end
+    return ()
+end
+
+# Revert is the rule doesn't exist
+func require_rule_exists{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(rule_id : felt):
+    let (next_rule_id) = _next_rule_id.read()
+    with_attr error_message("rule does not exist"):
+        assert_lt(rule_id, next_rule_id)
+    end
+    return ()
+end
 
 #
 # Getters
@@ -294,12 +347,15 @@ func get_transaction{
     let (calldata_len) = _transactions.read(tx_index=tx_index, field=Transaction.calldata_len)
     let (executed) = _transactions.read(tx_index=tx_index, field=Transaction.executed)
     let (num_confirmations) = _transactions.read(tx_index=tx_index, field=Transaction.num_confirmations)
+    let (rule_id) = _transactions.read(tx_index=tx_index, field=Transaction.rule_id)
+
     let tx = Transaction(
         to=to,
         function_selector=function_selector,
         calldata_len=calldata_len,
         executed=executed,
         num_confirmations=num_confirmations,
+        rule_id=rule_id,
     )
 
     let (calldata) = alloc()
@@ -315,6 +371,42 @@ func get_transaction{
         calldata=calldata,
     )
     return (tx=tx, tx_calldata_len=calldata_len, tx_calldata=calldata)
+end
+
+@view
+func get_rules_len{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res : felt):
+    let (res) = _next_rule_id.read()
+    return (res)
+end
+
+@view
+func get_rule{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(rule_id : felt) -> (
+        rule : Rule
+    ):
+
+    let (owner) = _rules.read(rule_id=rule_id, field=Rule.owner)
+    let (to) = _rules.read(rule_id=rule_id, field=Rule.to)
+    let (num_confirmations_required) = _rules.read(rule_id=rule_id, field=Rule.num_confirmations_required)
+    let (asset) = _rules.read(rule_id=rule_id, field=Rule.asset)
+    let (allowed_amount) = _rules.read(rule_id=rule_id, field=Rule.allowed_amount)
+    
+    let rule = Rule(
+        owner=owner,
+        to=to,
+        num_confirmations_required=num_confirmations_required,
+        asset=asset,
+        allowed_amount=allowed_amount,
+    )
+
+    return (rule=rule)
 end
 
 #
@@ -339,6 +431,7 @@ func constructor{
     _owners_len.write(value=owners_len)
     _set_owners(owners_index=0, owners_len=owners_len, owners=owners)
     _confirmations_required.write(value=confirmations_required)
+    _create_base_rule(owner=0, to=0, num_confirmations_required=confirmations_required, asset=0, allowed_amount=0)
     return ()
 end
 
@@ -352,9 +445,12 @@ func submit_transaction{
         function_selector : felt,
         calldata_len : felt,
         calldata : felt*,
+        rule_id : felt,
     ):
     alloc_locals
     require_owner()
+    require_rule_exists(rule_id)
+    require_rule_rights(rule_id)
 
     let (tx_index) = _next_tx_index.read()
 
@@ -362,6 +458,7 @@ func submit_transaction{
     _transactions.write(tx_index=tx_index, field=Transaction.to, value=to)
     _transactions.write(tx_index=tx_index, field=Transaction.function_selector, value=function_selector)
     _transactions.write(tx_index=tx_index, field=Transaction.calldata_len, value=calldata_len)
+    _transactions.write(tx_index=tx_index, field=Transaction.rule_id, value=rule_id)
 
     # Recursively store the tx calldata
     _set_transaction_calldata(
@@ -439,15 +536,18 @@ func execute_transaction{
     }(tx_index : felt) -> (
         response_len: felt,
         response: felt*,
-    ):
+    ):    
     require_owner()
     require_tx_exists(tx_index=tx_index)
     require_not_executed(tx_index=tx_index)
 
     let (tx, tx_calldata_len, tx_calldata) = get_transaction(tx_index=tx_index)
+    
+    let (required_confirmations) = _rules.read(rule_id=tx.rule_id, field=Rule.num_confirmations_required)
+    #to modify by a call to get_rule and access to rule.num_confirmations_required
 
     # Require minimum configured confirmations
-    let (required_confirmations) = _confirmations_required.read()
+    #let (required_confirmations) = rule.num_confirmations_required
     with_attr error_message("need more confirmations"):
         assert_le(required_confirmations, tx.num_confirmations)
     end
@@ -469,6 +569,35 @@ func execute_transaction{
         calldata=tx_calldata,
     )
     return (response_len=response.retdata_size, response=response.retdata)
+end
+
+@external
+func create_rule{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(
+        owner : felt,
+        to : felt,
+        num_confirmations_required : felt,
+        asset : felt,
+        allowed_amount : felt
+    ):
+    require_owner()
+    #require sender is owner to do
+    let (rule_id) = _next_rule_id.read()
+
+    # Store the rule descriptor
+    _rules.write(rule_id=rule_id, field=Rule.owner, value=owner)
+    _rules.write(rule_id=rule_id, field=Rule.to, value=to)
+    _rules.write(rule_id=rule_id, field=Rule.num_confirmations_required, value=num_confirmations_required)
+    _rules.write(rule_id=rule_id, field=Rule.asset, value=asset)
+    _rules.write(rule_id=rule_id, field=Rule.allowed_amount, value=allowed_amount)
+
+    # Update tx count
+    _next_rule_id.write(value=rule_id + 1)
+
+    return ()
 end
 
 #
@@ -525,5 +654,32 @@ func _set_transaction_calldata{
         calldata_len=calldata_len,
         calldata=calldata + 1,
     )
+    return ()
+end
+
+func _create_base_rule{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(
+        owner : felt,
+        to : felt,
+        num_confirmations_required : felt,
+        asset : felt,
+        allowed_amount : felt
+    ):
+
+    let (rule_id) = _next_rule_id.read()
+
+    # Store the rule descriptor
+    _rules.write(rule_id=rule_id, field=Rule.owner, value=owner)
+    _rules.write(rule_id=rule_id, field=Rule.to, value=to)
+    _rules.write(rule_id=rule_id, field=Rule.num_confirmations_required, value=num_confirmations_required)
+    _rules.write(rule_id=rule_id, field=Rule.asset, value=asset)
+    _rules.write(rule_id=rule_id, field=Rule.allowed_amount, value=allowed_amount)
+
+    # Update tx count
+    _next_rule_id.write(value=rule_id + 1)
+
     return ()
 end
