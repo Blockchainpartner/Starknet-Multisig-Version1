@@ -45,6 +45,11 @@ async def multisig_factory():
         constructor_calldata=[signer3.public_key],
     )
 
+    not_an_owner0 = await starknet.deploy(
+        "contracts/account/Account.cairo",
+        constructor_calldata=[not_a_signer0.public_key],
+    )
+
 
     confirmations_required = 3
     multisig = await starknet.deploy(
@@ -63,13 +68,13 @@ async def multisig_factory():
         "contracts/target.cairo",
     )
     
-    return starknet, multisig, target, owner0, owner1, owner2, owner3
+    return starknet, multisig, target, owner0, owner1, owner2, owner3, not_an_owner0
 
 
 @pytest.mark.asyncio
 async def test_creation_base_rule(multisig_factory):
     """Should be successfull"""
-    _, multisig, target, owner0, owner1, owner2, owner3 = multisig_factory
+    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
     
 
     # Check owners len and confirmations required
@@ -96,11 +101,49 @@ async def test_creation_base_rule(multisig_factory):
     assert observed.result.rule.num_confirmations_required == expected_confirmations_required
 
 @pytest.mark.asyncio
-async def test_creation_another_rule(multisig_factory):
-    """  """
-    _, multisig, target, owner0, owner1, owner2, owner3 = multisig_factory
+async def test_creation_rule_too_much_confirmations(multisig_factory):
+    """Should fail because the number of confirmations required > number of owners"""
+    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
+    
+     # Create a new rule
+    owner=owner3.contract_address
+    to=target.contract_address
+    num_confirmations_required=5
+    asset=0
+    allowed_amount=0
+    with pytest.raises(StarkException):
+        await signer3.send_transaction(
+            account=owner3,
+            to=multisig.contract_address,
+            selector_name="create_rule",
+            calldata=[owner, to, num_confirmations_required, asset, allowed_amount]
+    )
 
-    # Submit another rule new transactions
+@pytest.mark.asyncio
+async def test_creation_rule_wrong_beneficiary(multisig_factory):
+    """Should fail because beneficiary (future sender of transaction) isn't owner of the multisig"""
+    _, multisig, target, owner0, owner1, owner2, owner3, not_an_owner0 = multisig_factory
+    
+     # Create a new rule
+    owner=not_an_owner0.contract_address
+    to=target.contract_address
+    num_confirmations_required=5
+    asset=0
+    allowed_amount=0
+    with pytest.raises(StarkException):
+        await signer3.send_transaction(
+            account=owner3,
+            to=multisig.contract_address,
+            selector_name="create_rule",
+            calldata=[owner, to, num_confirmations_required, asset, allowed_amount]
+        )
+
+@pytest.mark.asyncio
+async def test_creation_another_rule(multisig_factory):
+    """Should be successful """
+    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
+
+    # Create a new rule
     owner=owner0.contract_address
     to=target.contract_address
     num_confirmations_required=2
@@ -123,7 +166,7 @@ async def test_creation_another_rule(multisig_factory):
 @pytest.mark.asyncio
 async def test_submit_transaction_rule_inexistant(multisig_factory):
     """ Should fail because the rule doesn't exist"""
-    _, multisig, target, owner0, owner1, owner2, owner3 = multisig_factory
+    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
     
     tx_index = 0
     # Submit a new transaction
@@ -142,7 +185,7 @@ async def test_submit_transaction_rule_inexistant(multisig_factory):
 @pytest.mark.asyncio
 async def test_submit_transaction_owner_not_allowed_for_rule(multisig_factory):
     """ Should fail because the owner doesn't have rights to use the specified rule"""
-    _, multisig, target, owner0, owner1, owner2, owner3 = multisig_factory
+    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
     
     tx_index = 0
     # Submit a new transaction
@@ -158,11 +201,34 @@ async def test_submit_transaction_owner_not_allowed_for_rule(multisig_factory):
             calldata=[to, function_selector, calldata_len, rule_id]
         )
 
+@pytest.mark.asyncio
+async def test_submit_transaction_recipient_not_allowed_for_rule(multisig_factory):
+    """ Should fail because the recipient is not allowed in the specified rule"""
+    starknet, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
+    
+    not_allowed_target = await starknet.deploy(
+        "contracts/target.cairo",
+    )
+
+    tx_index = 0
+    # Submit a new transaction
+    to = not_allowed_target.contract_address
+    function_selector = get_selector_from_name("increase_balance")
+    calldata_len = 0
+    rule_id = 1
+    with pytest.raises(StarkException):
+        await signer0.send_transaction(
+            account=owner0,
+            to=multisig.contract_address,
+            selector_name="submit_transaction",
+            calldata=[to, function_selector, calldata_len, rule_id]
+        )
+
 
 @pytest.mark.asyncio
 async def test_execution_with_another_rule(multisig_factory):
-    """  """
-    _, multisig, target, owner0, owner1, owner2, owner3 = multisig_factory
+    """ Should be successful """
+    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
     
     tx_index = 0
     # Submit a new transaction

@@ -198,6 +198,41 @@ func require_rule_exists{
     return ()
 end
 
+# Revert if the owner concerned by the rule (future sender of the transaction) isn't a signer of the multisig
+func require_sender_allowed{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(owner : felt):
+    
+    if owner != 0 :
+        let (_is_owner) = is_owner(owner)
+        with_attr error_message("sender isn't allowed by this rule"):
+            assert _is_owner = TRUE
+        end
+        return ()
+    end
+    return ()
+end
+
+
+# Revert if the recipient of the transaction is not allowed by the rule 
+func require_recipient_allowed{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(rule_id : felt, to : felt):
+    
+    let (rule) = get_rule(rule_id)
+    if rule.to != 0 :
+        with_attr error_message("recipient isn't allowed by this rule"):
+            assert to = rule.to
+        end
+        return ()
+    end
+    return ()
+end
+
 #
 # Getters
 #
@@ -451,6 +486,10 @@ func submit_transaction{
     require_owner()
     require_rule_exists(rule_id)
     require_rule_rights(rule_id)
+    require_recipient_allowed(rule_id, to)
+
+    #to-do requires on the amount and the asset
+    
 
     let (tx_index) = _next_tx_index.read()
 
@@ -584,7 +623,14 @@ func create_rule{
         allowed_amount : felt
     ):
     require_owner()
-    #require sender is owner to do
+    require_sender_allowed(owner)
+
+    let (owners_len) = get_owners_len()
+    with_attr error_message("invalid number of required confirmations"):
+        assert_le(1, num_confirmations_required)
+        assert_le(num_confirmations_required, owners_len)
+    end
+
     let (rule_id) = _next_rule_id.read()
 
     # Store the rule descriptor
