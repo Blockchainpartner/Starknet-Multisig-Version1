@@ -7,6 +7,8 @@ from starkware.cairo.common.math import assert_le, assert_lt
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.starknet.common.syscalls import call_contract, get_caller_address
 
+const TRANSFER_SELECTOR = 232670485425082704932579856502088130646006032362877466777181098476241604910
+
 #
 # Events
 #
@@ -221,12 +223,41 @@ func require_recipient_allowed{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(rule_id : felt, to : felt):
+    }(
+        rule_id : felt,
+        to : felt,
+        calldata_len : felt,
+        calldata : felt*
+    ):
     
     let (rule) = get_rule(rule_id)
     if rule.to != 0 :
-        with_attr error_message("recipient isn't allowed by this rule"):
-            assert to = rule.to
+        if rule.asset != 0 :
+            with_attr error_message("recipient isn't allowed by this rule (transfer case)"):
+                assert calldata[0] = rule.to
+            end
+            return()
+        else :
+            with_attr error_message("recipient isn't allowed by this rule"):
+                assert to = rule.to
+            end
+            return ()
+        end
+    end
+    return ()
+end
+
+# Revert if the transaction rule is about an asset but you are not transfering it
+func require_transfer{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(rule_id : felt, function_selector : felt):
+    
+    let (rule) = get_rule(rule_id)
+    if rule.asset != 0 :
+        with_attr error_message("you can't submit a transaction with a rule about an asset if fonction called isn't transfer"):
+            assert function_selector = TRANSFER_SELECTOR
         end
         return ()
     end
@@ -478,18 +509,20 @@ func submit_transaction{
     }(
         to : felt,
         function_selector : felt,
+        rule_id : felt,
         calldata_len : felt,
         calldata : felt*,
-        rule_id : felt,
     ):
     alloc_locals
     require_owner()
     require_rule_exists(rule_id)
     require_rule_rights(rule_id)
-    require_recipient_allowed(rule_id, to)
+    require_recipient_allowed(rule_id, to, calldata_len, calldata)
 
-    #to-do requires on the amount and the asset
-    
+    # Require about asset, amount and transferAmount (to complete)
+    require_transfer(rule_id, function_selector)
+
+    # require value not 0 -> to add
 
     let (tx_index) = _next_tx_index.read()
 
@@ -600,6 +633,8 @@ func execute_transaction{
     let (caller) = get_caller_address()
     ExecuteTransaction.emit(owner=caller, tx_index=tx_index)
 
+    #update amount of allowed_amount remaining if fonction is transfer - to do
+
     # Actually execute it
     let response = call_contract(
         contract_address=tx.to,
@@ -607,6 +642,7 @@ func execute_transaction{
         calldata_size=tx_calldata_len,
         calldata=tx_calldata,
     )
+
     return (response_len=response.retdata_size, response=response.retdata)
 end
 
@@ -630,6 +666,8 @@ func create_rule{
         assert_le(1, num_confirmations_required)
         assert_le(num_confirmations_required, owners_len)
     end
+
+    # require que si la regle concerne un asset, alors il faut verifier que le montant > 0 
 
     let (rule_id) = _next_rule_id.read()
 

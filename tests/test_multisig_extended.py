@@ -67,14 +67,40 @@ async def multisig_factory():
     target = await starknet.deploy(
         "contracts/target.cairo",
     )
-    
-    return starknet, multisig, target, owner0, owner1, owner2, owner3, not_an_owner0
 
+    erc20_token = await starknet.deploy(
+        "contracts/token/ERC20.cairo",
+        constructor_calldata=[
+            0x4d756c746973696720546f6b656e, # name = Multisig Token
+            0x534947, # symbol = SIG
+            18, # decimals = 18 
+            500, # supply = 500
+            0, # supply = 500 (second attribute of Uint256(500, 0))
+            multisig.contract_address,
+        ],
+    )
+    
+    return starknet, multisig, target, owner0, owner1, owner2, owner3, not_an_owner0, erc20_token
+
+
+@pytest.mark.asyncio
+async def test_creation_ERC20(multisig_factory):
+    """Should be successfull"""
+    _, multisig, target, owner0, owner1, owner2, owner3, _, erc20_token = multisig_factory
+    
+    expected_balance = 500
+    multisig_balance = await erc20_token.balanceOf(multisig.contract_address).call()
+    assert multisig_balance.result.balance.low == expected_balance
+
+    expected_decimals = 18
+    decimals = await erc20_token.decimals().call()
+    assert decimals.result.decimals == expected_decimals
 
 @pytest.mark.asyncio
 async def test_creation_base_rule(multisig_factory):
     """Should be successfull"""
-    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
+    """Rule number 0 will be created here"""
+    _, multisig, target, owner0, owner1, owner2, owner3, _, _ = multisig_factory
     
 
     # Check owners len and confirmations required
@@ -103,7 +129,7 @@ async def test_creation_base_rule(multisig_factory):
 @pytest.mark.asyncio
 async def test_creation_rule_too_much_confirmations(multisig_factory):
     """Should fail because the number of confirmations required > number of owners"""
-    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
+    _, multisig, target, owner0, owner1, owner2, owner3, _, _ = multisig_factory
     
      # Create a new rule
     owner=owner3.contract_address
@@ -122,7 +148,7 @@ async def test_creation_rule_too_much_confirmations(multisig_factory):
 @pytest.mark.asyncio
 async def test_creation_rule_wrong_beneficiary(multisig_factory):
     """Should fail because beneficiary (future sender of transaction) isn't owner of the multisig"""
-    _, multisig, target, owner0, owner1, owner2, owner3, not_an_owner0 = multisig_factory
+    _, multisig, target, owner0, owner1, owner2, owner3, not_an_owner0, _ = multisig_factory
     
      # Create a new rule
     owner=not_an_owner0.contract_address
@@ -141,7 +167,8 @@ async def test_creation_rule_wrong_beneficiary(multisig_factory):
 @pytest.mark.asyncio
 async def test_creation_another_rule(multisig_factory):
     """Should be successful """
-    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
+    """Rule number 1 will be created here"""
+    _, multisig, target, owner0, owner1, owner2, owner3, _, _ = multisig_factory
 
     # Create a new rule
     owner=owner0.contract_address
@@ -166,7 +193,7 @@ async def test_creation_another_rule(multisig_factory):
 @pytest.mark.asyncio
 async def test_submit_transaction_rule_inexistant(multisig_factory):
     """ Should fail because the rule doesn't exist"""
-    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
+    _, multisig, target, owner0, owner1, owner2, owner3, _, _ = multisig_factory
     
     tx_index = 0
     # Submit a new transaction
@@ -185,7 +212,7 @@ async def test_submit_transaction_rule_inexistant(multisig_factory):
 @pytest.mark.asyncio
 async def test_submit_transaction_owner_not_allowed_for_rule(multisig_factory):
     """ Should fail because the owner doesn't have rights to use the specified rule"""
-    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
+    _, multisig, target, owner0, owner1, owner2, owner3, _, _ = multisig_factory
     
     tx_index = 0
     # Submit a new transaction
@@ -204,7 +231,7 @@ async def test_submit_transaction_owner_not_allowed_for_rule(multisig_factory):
 @pytest.mark.asyncio
 async def test_submit_transaction_recipient_not_allowed_for_rule(multisig_factory):
     """ Should fail because the recipient is not allowed in the specified rule"""
-    starknet, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
+    starknet, multisig, target, owner0, owner1, owner2, owner3, _, _ = multisig_factory
     
     not_allowed_target = await starknet.deploy(
         "contracts/target.cairo",
@@ -228,19 +255,19 @@ async def test_submit_transaction_recipient_not_allowed_for_rule(multisig_factor
 @pytest.mark.asyncio
 async def test_execution_with_another_rule(multisig_factory):
     """ Should be successful """
-    _, multisig, target, owner0, owner1, owner2, owner3, _ = multisig_factory
+    _, multisig, target, owner0, owner1, owner2, owner3, _, _ = multisig_factory
     
     tx_index = 0
     # Submit a new transaction
     to = target.contract_address
     function_selector = get_selector_from_name("increase_balance")
-    calldata_len = 0
     rule_id = 1
+    calldata_len = 0
     await signer0.send_transaction(
         account=owner0,
         to=multisig.contract_address,
         selector_name="submit_transaction",
-        calldata=[to, function_selector, calldata_len, rule_id]
+        calldata=[to, function_selector, rule_id, calldata_len]
     )
 
     #Check it was accepted
@@ -285,6 +312,135 @@ async def test_execution_with_another_rule(multisig_factory):
     assert observed.result.res == TRUE
     observed = await target.get_balance().call()
     assert observed.result.res == 1
+
+@pytest.mark.asyncio
+async def test_creation_rule_ERC20_token(multisig_factory):
+    """Should be successful"""
+    """Rule number 2 will be created here"""
+    _, multisig, target, owner0, owner1, owner2, owner3, _, erc20_token = multisig_factory
+
+    # Create a new rule
+    owner=0
+    to=owner1.contract_address
+    num_confirmations_required=2
+    asset=erc20_token.contract_address
+    allowed_amount=100
+    await signer2.send_transaction(
+        account=owner2,
+        to=multisig.contract_address,
+        selector_name="create_rule",
+        calldata=[owner, to, num_confirmations_required, asset, allowed_amount]
+    )
+
+    # Check the rule exists with corresponding attributes
+    expected_rules_len = 3
+    expected_allowed_amount = 100
+    observed = await multisig.get_rules_len().call()
+    assert observed.result.res == expected_rules_len
+    observed = await multisig.get_rule(rule_id=2).call()
+    assert observed.result.rule.num_confirmations_required == 2
+    assert observed.result.rule.asset == erc20_token.contract_address
+    assert observed.result.rule.allowed_amount == expected_allowed_amount
+
+#test appel d'une transaction sur le contrat de notre erc20 (ex: balanceOf) pour verifier que la restriction au transfer fronctionne bien 
+@pytest.mark.asyncio
+async def test_submit_transaction_asset_not_transfer(multisig_factory):
+    """ Should fail because the called contract is erc20_token but the called function is not transfer"""
+    starknet, multisig, target, owner0, owner1, owner2, owner3, _, erc20_token = multisig_factory
+    
+    # Submit the transaction transaction
+    to = erc20_token.contract_address
+    function_selector = get_selector_from_name("balanceOf")
+    calldata_function_len = 1
+    calldata_function = [multisig.contract_address]
+    rule_id = 2
+    with pytest.raises(StarkException):
+        await signer2.send_transaction(
+            account=owner2,
+            to=multisig.contract_address,
+            selector_name="submit_transaction",
+            calldata=[to, function_selector, rule_id, calldata_function_len, calldata_function[0]]
+        )
+
+@pytest.mark.asyncio
+async def test_submit_transaction_asset(multisig_factory):
+    """ Should be successful because the function called is erc20's transfer function"""
+    starknet, multisig, target, owner0, owner1, owner2, owner3, _, erc20_token = multisig_factory
+    
+    # Submit the transaction transaction
+    to = erc20_token.contract_address
+    function_selector = get_selector_from_name("transfer")
+    calldata_function_len = 3
+    # Send 100 tokens from multisig to owner1 - should be allowed by rule 3 with 2 expected confirmations
+    # Attention point, it's not possible to send the array directly
+    calldata_function = [owner1.contract_address, 10, 0]
+    rule_id = 2
+    await signer2.send_transaction(
+        account=owner2,
+        to=multisig.contract_address,
+        selector_name="submit_transaction",
+        calldata=[to, function_selector, rule_id, calldata_function_len, calldata_function[0], calldata_function[1], calldata_function[2]]
+    )
+
+    #Check it was accepted
+    observed = await multisig.get_transactions_len().call()
+    assert observed.result.res == 2
+    observed = await multisig.get_transaction(1).call()
+    assert observed.result.tx_calldata[0] == owner1.contract_address
+    assert observed.result.tx_calldata[1] == 10
+
+
+@pytest.mark.asyncio
+async def test_confirmation_transaction_asset(multisig_factory):
+    """ Should be successful """
+    _, multisig, target, owner0, owner1, owner2, owner3, _, erc20_token = multisig_factory
+
+    tx_index = 1
+    # Confirm the transaction for owner0
+    await signer0.send_transaction(
+        account=owner0,
+        to=multisig.contract_address,
+        selector_name="confirm_transaction",
+        calldata=[tx_index]
+    )
+
+    # Confirm the transaction for owner1
+    await signer1.send_transaction(
+        account=owner1,
+        to=multisig.contract_address,
+        selector_name="confirm_transaction",
+        calldata=[tx_index]
+    )
+
+    # Check the transaction is confirmed by only 2 owners
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner0.contract_address).call()
+    assert observed.result.res == TRUE
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner1.contract_address).call()
+    assert observed.result.res == TRUE
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner2.contract_address).call()
+    assert observed.result.res == FALSE
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner3.contract_address).call()
+    assert observed.result.res == FALSE
+
+    # Should be executed even if there are only 2 confirmations
+    await signer0.send_transaction(
+        account=owner0,
+        to=multisig.contract_address,
+        selector_name="execute_transaction",
+        calldata=[tx_index]
+    )
+
+    # Check the transaction has been executed
+    observed = await multisig.is_executed(tx_index=tx_index).call()
+    assert observed.result.res == TRUE
+    observed = await erc20_token.balanceOf(owner1.contract_address).call()
+    assert observed.result.balance.low == 10
+    observed = await erc20_token.balanceOf(multisig.contract_address).call()
+    assert observed.result.balance.low == 490
+
+
+
+
 
 
 

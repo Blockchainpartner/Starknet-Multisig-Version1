@@ -11,7 +11,7 @@ from starkware.starknet.common.syscalls import call_contract, get_caller_address
 
 from contracts.account.ERC165 import ERC165
 
-from contracts.account.utils.constants import IACCOUNT_ID
+from contracts.utils.constants import IACCOUNT_ID
 
 #
 # Storage

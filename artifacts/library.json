@@ -1897,7 +1897,7 @@
                 "type": "alias"
             },
             "__main__.IACCOUNT_ID": {
-                "destination": "contracts.account.utils.constants.IACCOUNT_ID",
+                "destination": "contracts.utils.constants.IACCOUNT_ID",
                 "type": "alias"
             },
             "__main__.SignatureBuiltin": {
@@ -2015,11 +2015,11 @@
                 "type": "alias"
             },
             "contracts.account.ERC165.IERC165_ID": {
-                "destination": "contracts.account.utils.constants.IERC165_ID",
+                "destination": "contracts.utils.constants.IERC165_ID",
                 "type": "alias"
             },
             "contracts.account.ERC165.INVALID_ID": {
-                "destination": "contracts.account.utils.constants.INVALID_ID",
+                "destination": "contracts.utils.constants.INVALID_ID",
                 "type": "alias"
             },
             "contracts.account.ERC165.SignatureBuiltin": {
@@ -2034,35 +2034,35 @@
                 "destination": "starkware.cairo.common.math.assert_not_equal",
                 "type": "alias"
             },
-            "contracts.account.utils.constants.IACCOUNT_ID": {
+            "contracts.utils.constants.IACCOUNT_ID": {
                 "type": "const",
                 "value": 4044209476
             },
-            "contracts.account.utils.constants.IERC165_ID": {
+            "contracts.utils.constants.IERC165_ID": {
                 "type": "const",
                 "value": 33540519
             },
-            "contracts.account.utils.constants.IERC721_ENUMERABLE_ID": {
+            "contracts.utils.constants.IERC721_ENUMERABLE_ID": {
                 "type": "const",
                 "value": 2014223715
             },
-            "contracts.account.utils.constants.IERC721_ID": {
+            "contracts.utils.constants.IERC721_ID": {
                 "type": "const",
                 "value": 2158778573
             },
-            "contracts.account.utils.constants.IERC721_METADATA_ID": {
+            "contracts.utils.constants.IERC721_METADATA_ID": {
                 "type": "const",
                 "value": 1532892063
             },
-            "contracts.account.utils.constants.IERC721_RECEIVER_ID": {
+            "contracts.utils.constants.IERC721_RECEIVER_ID": {
                 "type": "const",
                 "value": 353073666
             },
-            "contracts.account.utils.constants.INVALID_ID": {
+            "contracts.utils.constants.INVALID_ID": {
                 "type": "const",
                 "value": 4294967295
             },
-            "contracts.account.utils.constants.UINT8_MAX": {
+            "contracts.utils.constants.UINT8_MAX": {
                 "type": "const",
                 "value": 256
             },
