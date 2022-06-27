@@ -343,16 +343,16 @@
                 "type": "felt"
             },
             {
+                "name": "rule_id",
+                "type": "felt"
+            },
+            {
                 "name": "calldata_len",
                 "type": "felt"
             },
             {
                 "name": "calldata",
                 "type": "felt*"
-            },
-            {
-                "name": "rule_id",
-                "type": "felt"
             }
         ],
         "name": "submit_transaction",
