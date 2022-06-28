@@ -133,3 +133,5 @@ dmypy.json
 
 # vscode project settings
 .vscode/
+
+frontend/node_modules
