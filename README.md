@@ -39,6 +39,10 @@ Clone the repository (spending limits branch for now)
 ```
 git clone -b spending_limit_rules https://github.com/Blockchainpartner/Starknet-Multisig-Version1.git
 ```
+Install pytest 
+```
+pip install pytest pytest-asyncio
+```
 
 Create a Python virtual environment 
 ```
@@ -51,7 +55,7 @@ nile compile
 nile compile contracts/account/Account.cairo --account_contract
 ```
 
-Run corresponding tests 
+Run corresponding tests from root folder
 ```
 make tests
 ```
