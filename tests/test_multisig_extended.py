@@ -438,6 +438,10 @@ async def test_confirmation_transaction_asset(multisig_factory):
     observed = await erc20_token.balanceOf(multisig.contract_address).call()
     assert observed.result.balance.low == 490
 
+    # Check the remaining amount allowed in the rule 
+    observed = await multisig.get_rule(rule_id=2).call()
+    assert observed.result.rule.allowed_amount == 90
+
 
 
 

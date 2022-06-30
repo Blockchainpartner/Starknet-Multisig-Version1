@@ -217,6 +217,23 @@ func require_sender_allowed{
     return ()
 end
 
+# Revert if you try to create a rule about an asset but allowing to spend 0
+func require_correct_amount{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(asset : felt, allowed_amount : felt):
+    
+    if asset != 0 :
+        with_attr error_message("you can't create a rule about a token with 0 allowed amount"):
+            assert_lt(0, allowed_amount)
+        end 
+
+        return ()
+    end
+    return ()
+end
+
 
 # Revert if the recipient of the transaction is not allowed by the rule 
 func require_recipient_allowed{
@@ -252,13 +269,19 @@ func require_transfer{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(rule_id : felt, function_selector : felt):
+    }(rule_id : felt, function_selector : felt, calldata_len : felt, calldata : felt*):
     
     let (rule) = get_rule(rule_id)
     if rule.asset != 0 :
         with_attr error_message("you can't submit a transaction with a rule about an asset if fonction called isn't transfer"):
             assert function_selector = TRANSFER_SELECTOR
         end
+
+        with_attr error_message("you can't submit a transaction about transfering 0 tokens"):
+            assert_lt(0, calldata[1])
+        end 
+
+        # il faut que calldata 1 soit supérieur à 0 et inférieur ou égal à ce que le mec possède réellement
         return ()
     end
     return ()
@@ -457,7 +480,7 @@ func get_rule{
     }(rule_id : felt) -> (
         rule : Rule
     ):
-
+    alloc_locals
     let (owner) = _rules.read(rule_id=rule_id, field=Rule.owner)
     let (to) = _rules.read(rule_id=rule_id, field=Rule.to)
     let (num_confirmations_required) = _rules.read(rule_id=rule_id, field=Rule.num_confirmations_required)
@@ -520,9 +543,9 @@ func submit_transaction{
     require_recipient_allowed(rule_id, to, calldata_len, calldata)
 
     # Require about asset, amount and transferAmount (to complete)
-    require_transfer(rule_id, function_selector)
-
-    # require value not 0 -> to add
+    require_transfer(rule_id, function_selector, calldata_len, calldata)
+    
+    # require value not 0 -> to add, require value < a ce que le gars possède réellement
 
     let (tx_index) = _next_tx_index.read()
 
@@ -608,21 +631,22 @@ func execute_transaction{
     }(tx_index : felt) -> (
         response_len: felt,
         response: felt*,
-    ):    
+    ):
+    alloc_locals
     require_owner()
     require_tx_exists(tx_index=tx_index)
     require_not_executed(tx_index=tx_index)
 
     let (tx, tx_calldata_len, tx_calldata) = get_transaction(tx_index=tx_index)
-    
     let (required_confirmations) = _rules.read(rule_id=tx.rule_id, field=Rule.num_confirmations_required)
-    #to modify by a call to get_rule and access to rule.num_confirmations_required
 
     # Require minimum configured confirmations
-    #let (required_confirmations) = rule.num_confirmations_required
     with_attr error_message("need more confirmations"):
         assert_le(required_confirmations, tx.num_confirmations)
     end
+
+    # Update the remaining amount of the spending limit
+    _update_allowed_amount(tx_index=tx_index)
 
     # Mark as executed
     _transactions.write(
@@ -632,9 +656,7 @@ func execute_transaction{
     )
     let (caller) = get_caller_address()
     ExecuteTransaction.emit(owner=caller, tx_index=tx_index)
-
-    #update amount of allowed_amount remaining if fonction is transfer - to do
-
+    
     # Actually execute it
     let response = call_contract(
         contract_address=tx.to,
@@ -659,7 +681,7 @@ func create_rule{
         allowed_amount : felt
     ):
     require_owner()
-    require_sender_allowed(owner)
+    require_sender_allowed(owner=owner)
 
     let (owners_len) = get_owners_len()
     with_attr error_message("invalid number of required confirmations"):
@@ -667,7 +689,8 @@ func create_rule{
         assert_le(num_confirmations_required, owners_len)
     end
 
-    # require que si la regle concerne un asset, alors il faut verifier que le montant > 0 
+    # We check that amount > 0 if the rule is about any asset
+    require_correct_amount(asset=asset, allowed_amount=allowed_amount)
 
     let (rule_id) = _next_rule_id.read()
 
@@ -767,3 +790,21 @@ func _create_base_rule{
 
     return ()
 end
+
+func _update_allowed_amount{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+    }(
+        tx_index : felt,
+    ):
+    let (tx, tx_calldata_len, tx_calldata) = get_transaction(tx_index=tx_index)
+    if tx.function_selector == TRANSFER_SELECTOR:
+        let (allowed_amount) = _rules.read(rule_id=tx.rule_id, field=Rule.allowed_amount)
+        let (sent_amount) = _transaction_calldata.read(tx_index=tx_index, calldata_index=1)
+        _rules.write(rule_id=tx.rule_id, field=Rule.allowed_amount, value=allowed_amount - sent_amount)
+        return ()
+    end
+    return ()
+end
+
