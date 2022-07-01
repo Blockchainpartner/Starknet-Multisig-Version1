@@ -59,4 +59,3 @@ Run corresponding tests from root folder
 ```
 make tests
 ```
-> multisig_base.py is outdated for now 
