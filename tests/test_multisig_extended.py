@@ -598,7 +598,7 @@ async def test_submit_transaction_asset(multisig_factory):
     to = erc20_token.contract_address
     function_selector = get_selector_from_name("transfer")
     calldata_function_len = 3
-    # Send 100 tokens from multisig to owner1 - should be allowed by rule 3 with 2 expected confirmations
+    # Send 10 tokens from multisig to owner1 - should be allowed by rule 3 with 2 expected confirmations
     # Attention point, it's not possible to send the array directly
     calldata_function = [owner1.contract_address, 10, 0]
     rule_id = 2
@@ -671,12 +671,168 @@ async def test_confirmation_transaction_asset(multisig_factory):
     observed = await multisig.get_rule(rule_id=2).call()
     assert observed.result.rule.allowed_amount == 90
 
+@pytest.mark.asyncio
+async def test_execute_transaction_asset_more_than_allowed(multisig_factory):
+    """ Should fail because we want to transfer more than what the rule authorizes"""
+    starknet, multisig, target, owner0, owner1, owner2, owner3, _, erc20_token = multisig_factory
 
-
-
-
-
-
+    observed = await multisig.get_transactions_len().call()
+    tx_index = observed.result.res
     
+    # Submit the transaction
+    to = erc20_token.contract_address
+    function_selector = get_selector_from_name("transfer")
+    calldata_function_len = 3
+    # Send 100 tokens from multisig to owner1 - should not be allowed by rule 3 because updated allowed amount should be 90
+    # Attention point, it's not possible to send the array directly
+    calldata_function = [owner1.contract_address, 100, 0]
+    rule_id = 2
+    with pytest.raises(StarkException):
+        await signer2.send_transaction(
+            account=owner2,
+            to=multisig.contract_address,
+            selector_name="submit_transaction",
+            calldata=[to, function_selector, rule_id, calldata_function_len, calldata_function[0], calldata_function[1], calldata_function[2]]
+    )
+
+@pytest.mark.asyncio
+async def test_transfer_more_tokens_than_multisig_owns(multisig_factory):
+    """Should fail because the multisig want to transfer more tokens than it owns"""
+    """Rule number 3 will be created here"""
+    _, multisig, target, owner0, owner1, owner2, owner3, _, erc20_token = multisig_factory
+
+    observed = await multisig.get_transactions_len().call()
+    tx_index = observed.result.res
+
+    # Create a new rule about an erc20 token
+    function_selector = get_selector_from_name("create_rule")
+    calldata_function_len = 5
+    calldata_function = [0, owner3.contract_address, 2, erc20_token.contract_address, 1000]
+
+    await signer3.send_transaction(
+        account=owner3,
+        to=multisig.contract_address,
+        selector_name="submit_transaction",
+        calldata=[multisig.contract_address, function_selector, 0, calldata_function_len, calldata_function[0], calldata_function[1], calldata_function[2], calldata_function[3], calldata_function[4]]
+    )
+
+    # Confirm the transaction for owner0
+    await signer0.send_transaction(
+        account=owner0,
+        to=multisig.contract_address,
+        selector_name="confirm_transaction",
+        calldata=[tx_index]
+    )
+
+    # Confirm the transaction for owner1
+    await signer1.send_transaction(
+        account=owner1,
+        to=multisig.contract_address,
+        selector_name="confirm_transaction",
+        calldata=[tx_index]
+    )
+
+    # Confirm the transaction for owner2
+    await signer2.send_transaction(
+        account=owner2,
+        to=multisig.contract_address,
+        selector_name="confirm_transaction",
+        calldata=[tx_index]
+    )
+
+    # Confirm the transaction for owner3
+    await signer3.send_transaction(
+        account=owner3,
+        to=multisig.contract_address,
+        selector_name="confirm_transaction",
+        calldata=[tx_index]
+    )
+
+    #Check the transaction is confirmed or not by owners
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner0.contract_address).call()
+    assert observed.result.res == TRUE
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner1.contract_address).call()
+    assert observed.result.res == TRUE
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner2.contract_address).call()
+    assert observed.result.res == TRUE
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner3.contract_address).call()
+    assert observed.result.res == TRUE
+
+    await signer3.send_transaction(
+        account=owner3,
+        to=multisig.contract_address,
+        selector_name="execute_transaction",
+        calldata=[tx_index]
+    )
+
+    # Check the rule exists with corresponding attributes
+    expected_rules_len = 4
+    expected_allowed_amount = 1000
+    observed = await multisig.get_rules_len().call()
+    assert observed.result.res == expected_rules_len
+    observed = await multisig.get_rule(rule_id=expected_rules_len - 1).call()
+    assert observed.result.rule.num_confirmations_required == 2
+    assert observed.result.rule.asset == erc20_token.contract_address
+    assert observed.result.rule.allowed_amount == expected_allowed_amount
 
 
+    observed = await multisig.get_transactions_len().call()
+    tx_index = observed.result.res
+    
+    # Submit the transaction
+    to = erc20_token.contract_address
+    function_selector = get_selector_from_name("transfer")
+    calldata_function_len = 3
+    # Send 1000 tokens from multisig to owner3 - should be allowed by rule 4 with 2 expected confirmations but will raise an error because the multisig does not have 1000 tokens 
+    # Attention point, it's not possible to send the array directly
+    calldata_function = [owner3.contract_address, 1000, 0]
+    rule_id = 3
+    await signer2.send_transaction(
+        account=owner2,
+        to=multisig.contract_address,
+        selector_name="submit_transaction",
+        calldata=[to, function_selector, rule_id, calldata_function_len, calldata_function[0], calldata_function[1], calldata_function[2]]
+    )
+
+    #Check it was accepted
+    observed = await multisig.get_transactions_len().call()
+    assert observed.result.res == tx_index + 1
+    observed = await multisig.get_transaction(tx_index).call()
+    assert observed.result.tx_calldata[0] == owner3.contract_address
+    assert observed.result.tx_calldata[1] == 1000
+
+
+    # Confirm the transaction for owner0
+    await signer0.send_transaction(
+        account=owner0,
+        to=multisig.contract_address,
+        selector_name="confirm_transaction",
+        calldata=[tx_index]
+    )
+
+    # Confirm the transaction for owner1
+    await signer1.send_transaction(
+        account=owner1,
+        to=multisig.contract_address,
+        selector_name="confirm_transaction",
+        calldata=[tx_index]
+    )
+
+    # Check the transaction is confirmed by only 2 owners
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner0.contract_address).call()
+    assert observed.result.res == TRUE
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner1.contract_address).call()
+    assert observed.result.res == TRUE
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner2.contract_address).call()
+    assert observed.result.res == FALSE
+    observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner3.contract_address).call()
+    assert observed.result.res == FALSE
+
+    # Should be executed even if there are only 2 confirmations
+    with pytest.raises(StarkException):
+        await signer0.send_transaction(
+            account=owner0,
+            to=multisig.contract_address,
+            selector_name="execute_transaction",
+            calldata=[tx_index]
+    )

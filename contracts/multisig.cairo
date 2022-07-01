@@ -294,7 +294,9 @@ func require_transfer{
             assert_lt(0, calldata[1])
         end 
 
-        # il faut que calldata 1 soit supérieur à 0 et inférieur ou égal à ce que le mec possède réellement
+        with_attr error_message("you can't submit a transaction of more than allowed tokens"):
+            assert_le(calldata[1], rule.allowed_amount)
+        end 
         return ()
     end
     return ()
