@@ -400,32 +400,5 @@
             }
         ],
         "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "name": "owner",
-                "type": "felt"
-            },
-            {
-                "name": "to",
-                "type": "felt"
-            },
-            {
-                "name": "num_confirmations_required",
-                "type": "felt"
-            },
-            {
-                "name": "asset",
-                "type": "felt"
-            },
-            {
-                "name": "allowed_amount",
-                "type": "felt"
-            }
-        ],
-        "name": "create_rule",
-        "outputs": [],
-        "type": "function"
     }
 ]

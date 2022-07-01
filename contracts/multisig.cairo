@@ -5,7 +5,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_le, assert_lt
 from starkware.cairo.common.bool import TRUE, FALSE
-from starkware.starknet.common.syscalls import call_contract, get_caller_address
+from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_contract_address
 
 const TRANSFER_SELECTOR = 232670485425082704932579856502088130646006032362877466777181098476241604910
 
@@ -111,6 +111,19 @@ func require_owner{
     let (is_caller_owner) = is_owner(address=caller)
     with_attr error_message("not owner"):
         assert is_caller_owner = TRUE
+    end
+    return ()
+end
+
+func require_multisig_sender{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }():
+    let (caller) = get_caller_address()
+    let (multisig_contract_address) = get_contract_address()
+    with_attr error_message("not multisig that sends the transaction"):
+        assert caller = multisig_contract_address
     end
     return ()
 end
@@ -629,8 +642,8 @@ func execute_transaction{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(tx_index : felt) -> (
-        response_len: felt,
-        response: felt*,
+        response_len : felt,
+        response : felt*
     ):
     alloc_locals
     require_owner()
@@ -655,6 +668,7 @@ func execute_transaction{
         value=TRUE,
     )
     let (caller) = get_caller_address()
+    let (multisig_address) = get_contract_address()
     ExecuteTransaction.emit(owner=caller, tx_index=tx_index)
     
     # Actually execute it
@@ -664,11 +678,10 @@ func execute_transaction{
         calldata_size=tx_calldata_len,
         calldata=tx_calldata,
     )
-
     return (response_len=response.retdata_size, response=response.retdata)
 end
 
-@external
+@external 
 func create_rule{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
@@ -680,7 +693,10 @@ func create_rule{
         asset : felt,
         allowed_amount : felt
     ):
-    require_owner()
+
+    # Require the caller is the multisig because the create rule transaction have to be confirmed enough times
+    require_multisig_sender()
+
     require_sender_allowed(owner=owner)
 
     let (owners_len) = get_owners_len()
@@ -706,6 +722,7 @@ func create_rule{
 
     return ()
 end
+
 
 #
 # Storage Helpers
@@ -785,7 +802,7 @@ func _create_base_rule{
     _rules.write(rule_id=rule_id, field=Rule.asset, value=asset)
     _rules.write(rule_id=rule_id, field=Rule.allowed_amount, value=allowed_amount)
 
-    # Update tx count
+    # Update rule count
     _next_rule_id.write(value=rule_id + 1)
 
     return ()
