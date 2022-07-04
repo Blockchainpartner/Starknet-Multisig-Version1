@@ -65,10 +65,6 @@ func _can_use_rule(owner : felt, rule_id : felt) -> (res : felt):
 end
 
 @storage_var
-func _confirmations_required() -> (res : felt):
-end
-
-@storage_var
 func _owners_len() -> (res : felt):
 end
 
@@ -382,16 +378,6 @@ func get_transactions_len{
 end
 
 @view
-func get_confirmations_required{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (confirmations_required : felt):
-    let (confirmations_required) = _confirmations_required.read()
-    return (confirmations_required)
-end
-
-@view
 func is_confirmed{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
@@ -537,7 +523,6 @@ func constructor{
 
     _owners_len.write(value=owners_len)
     _set_owners(owners_index=0, owners_len=owners_len, owners=owners)
-    _confirmations_required.write(value=confirmations_required)
     _create_base_rule(owner=0, to=0, num_confirmations_required=confirmations_required, asset=0, allowed_amount=0)
     return ()
 end

@@ -155,8 +155,8 @@ async def test_constructor(multisig_factory):
     assert observed.result.owners[1] == owner1.contract_address
 
     expected_confirmations_required = 2
-    observed = await multisig.get_confirmations_required().call()
-    assert observed.result.confirmations_required == expected_confirmations_required
+    observed = await multisig.get_rule(rule_id = 0).call()
+    assert observed.result.rule.num_confirmations_required == expected_confirmations_required
 
 @pytest.mark.asyncio
 async def test_non_owner_submit_transaction(multisig_factory):
@@ -607,8 +607,8 @@ async def test_execute_with_too_many_transaction(multisig_factory_2):
     assert observed.result.owners[3] == owner3.contract_address
 
     expected_confirmations_required = 3
-    observed = await multisig.get_confirmations_required().call()
-    assert observed.result.confirmations_required == expected_confirmations_required
+    observed = await multisig.get_rule(rule_id = 0).call()
+    assert observed.result.rule.num_confirmations_required == expected_confirmations_required
 
     tx_index = 0
 

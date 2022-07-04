@@ -115,12 +115,9 @@ async def test_creation_base_rule(multisig_factory):
     assert observed.result.owners[2] == owner2.contract_address
     assert observed.result.owners[3] == owner3.contract_address
 
-    expected_confirmations_required = 3
-    observed = await multisig.get_confirmations_required().call()
-    assert observed.result.confirmations_required == expected_confirmations_required
-
     # Check first rule exists and is base rule
     expected_rules_len = 1
+    expected_confirmations_required = 3
     observed = await multisig.get_rules_len().call()
     assert observed.result.res == expected_rules_len
     observed = await multisig.get_rule(rule_id=0).call()
