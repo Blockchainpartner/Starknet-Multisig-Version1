@@ -241,8 +241,11 @@ func require_correct_amount{
         with_attr error_message("you can't create a rule about a token with 0 allowed amount"):
             assert_lt(0, allowed_amount)
         end 
-
         return ()
+    end
+    # Check that if there is no asset, it can't be an allowed amount
+    with_attr error_message("you can't create a rule about no token but with an allowed amount"):
+            assert allowed_amount = 0
     end
     return ()
 end
@@ -557,11 +560,9 @@ func submit_transaction{
     require_rule_rights(rule_id)
     require_recipient_allowed(rule_id, to, calldata_len, calldata)
 
-    # Require about asset, amount and transferAmount (to complete)
+    # Require about asset, amount and transferAmount
     require_transfer(rule_id, function_selector, calldata_len, calldata)
     
-    # require value not 0 -> to add, require value < a ce que le gars possède réellement
-
     let (tx_index) = _next_tx_index.read()
 
     # Store the tx descriptor
