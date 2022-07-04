@@ -39,14 +39,29 @@ Clone the repository (spending limits branch for now)
 ```
 git clone -b spending_limit_rules https://github.com/Blockchainpartner/Starknet-Multisig-Version1.git
 ```
-Install pytest 
-```
-pip install pytest pytest-asyncio
-```
-
 Create a Python virtual environment 
 ```
 source ~/cairo_venv/bin/activate
+```
+### Install packages - Automatic way
+The following command will install the packages according to the configuration file `requirements.txt`
+```
+pip install -r requirements.txt
+```
+### Install packages - Manual way
+Install the following packages
+```
+pip install ecdsa fastecdsa sympy
+```
+> On Mac, you will have to first install `gmp`
+> ```
+> brew install gmp
+> ```
+> If you have errors installing these packages please refer to those issues : [Issue 1](https://github.com/AntonKueltz/fastecdsa/issues/74) [Issue 2](https://github.com/OpenZeppelin/nile/issues/22)
+
+Install pytest 
+```
+pip install pytest pytest-asyncio
 ```
 ### Compile
 Compile the cairo files 
