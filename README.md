@@ -59,3 +59,10 @@ Run corresponding tests from root folder
 ```
 make tests
 ```
+
+### For BCP - devs
+- [ ] Change amount related variables from felt to Uint256
+- [ ] Add blacklist system
+- [ ] Add more tests in multisig_extended.py 
+- [ ] Do researchs to know if it's possible to let the multisig pay the transaction fees
+- [ ] Think about a timer to reset the rules (if we want to implement something like this)
