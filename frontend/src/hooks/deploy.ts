@@ -37,7 +37,6 @@ export function useContractFactory({
   abi,
 }: UseContractFactoryArgs): UseContractFactory {
   const { library } = useStarknet();
-  const { addTransaction } = useStarknetTransactionManager();
   const [factory, setFactory] = useState<ContractFactory | undefined>();
   const [contract, setContract] = useState<Contract | undefined>();
 

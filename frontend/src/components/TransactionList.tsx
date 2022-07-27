@@ -1,3 +1,4 @@
+// This component is not useful for project but we keep it as example
 import { Transaction, useStarknetTransactionManager } from '@starknet-react/core'
 import React from 'react'
 

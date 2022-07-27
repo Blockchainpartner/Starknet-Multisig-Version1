@@ -1,3 +1,5 @@
+// This component is not useful for project but we keep it as example
+
 import { useStarknet, useStarknetInvoke } from '@starknet-react/core'
 import React from 'react'
 import { useCounterContract } from '~/hooks/counter'
