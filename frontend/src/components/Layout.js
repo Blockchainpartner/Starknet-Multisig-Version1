@@ -3,10 +3,11 @@ import HeaderBar from './HeaderBar'
 import SideBar from './SideBar'
 
 export default function Layout({ children }) {
+
   return (
     <div>
-        <div className="flex-col">
-        <HeaderBar/>
+        <div className="flex flex-col">
+            <HeaderBar/>
         </div>
         <div className="flex flew-row h-screen">
           <SideBar/>

@@ -1,5 +1,9 @@
-export default function Dashboard() {
-    console.log("on render bien le composant Dashboard ")
 
-    return <h1>Dashboard</h1>;
+export default function Dashboard() {
+    
+    return (
+    <div>
+        <h1>Welcome on the dashboard</h1>
+    </div>
+    )
   }

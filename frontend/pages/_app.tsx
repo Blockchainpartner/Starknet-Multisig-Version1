@@ -5,8 +5,6 @@ import NextHead from 'next/head'
 import Link from 'next/link'
 import Layout from '~/components/Layout'
 
-
-
 import { InjectedConnector, StarknetProvider } from '@starknet-react/core'
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -15,11 +13,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <StarknetProvider connectors={connectors}>
       <NextHead>
-        <title>StarkNet MULTISIG</title>
+        <title>StarkNet multisig</title>
       </NextHead>
 
       <Layout>
-        <Component {...pageProps} />
+        <Component {...pageProps } />
       </Layout>
         
 

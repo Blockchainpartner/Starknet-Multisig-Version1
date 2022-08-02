@@ -1,7 +1,7 @@
 import { useStarknet, useStarknetInvoke } from '@starknet-react/core'
 import React from 'react'
 import { useState } from 'react';
-import { number } from "starknet";
+import { Contract, number } from "starknet";
 import { getSelectorFromName, starknetKeccak } from "starknet/dist/utils/hash";
 import { useMultisigContract } from '~/hooks/multisig'
 import { toBN } from "starknet/dist/utils/number";
@@ -39,7 +39,6 @@ export function SubmitTransaction(props: any) {
             args: [submitAddress, newSelector, '0x0', goodParameters], //to change '0x0' to ruleID 
             metadata: { method: 'submit_transaction', message: 'increment counter by 1' },
         })
-
     };
 
     const onRuleNumber = (value: string) => {

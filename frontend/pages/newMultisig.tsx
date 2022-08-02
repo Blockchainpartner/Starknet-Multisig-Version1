@@ -5,6 +5,7 @@ import { number } from "starknet";
 import { useContractFactory } from '~/hooks/deploy'
 import multisigABI from "../src/abi/multisig.json";
 import { CompiledContract, json, Abi } from "starknet";
+import { PleaseConnectWallet } from '~/components/PleaseConnectWallet'
 
 
 
@@ -95,7 +96,9 @@ export default function CreateMultisig() {
 
     if (!account) {
         return (
-            <div>Please connect a wallet to deploy a multisig </div>
+            
+                <PleaseConnectWallet/>
+            
         )
     }
 

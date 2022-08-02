@@ -1,5 +1,7 @@
 import { useStarknet } from '@starknet-react/core'
 import { SubmitTransaction } from '~/components/SubmitTransaction'
+import { PleaseConnectWallet } from '~/components/PleaseConnectWallet'
+
 
 
 export default function newTransaction() {
@@ -9,10 +11,10 @@ export default function newTransaction() {
 
     if (!account) {
         return (
-            <div>Please connect a wallet to submit a transaction </div>
+            <PleaseConnectWallet/>
         )
     }
-
+    
   return (
     <div>newTransaction
         <SubmitTransaction address={deployedMultisigAddress} />
