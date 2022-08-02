@@ -83,9 +83,6 @@ export default function CreateMultisig() {
         addNewOwner[index] = value;
         setOwners([...addNewOwner]);
         console.log("owners", addNewOwner);
-
-
-
     };
 
     const onOwnersNumber = (value: string) => {
@@ -95,10 +92,8 @@ export default function CreateMultisig() {
 
 
     if (!account) {
-        return (
-            
-                <PleaseConnectWallet/>
-            
+        return (           
+                <PleaseConnectWallet/>           
         )
     }
 

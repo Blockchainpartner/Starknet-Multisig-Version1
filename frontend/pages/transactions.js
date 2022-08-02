@@ -7,7 +7,7 @@ import { PleaseConnectWallet } from '~/components/PleaseConnectWallet'
 
 
 
-export default function transactions(deployedMultisigAddress) {
+export default function Transactions(deployedMultisigAddress) {
     //need to use getInitialProps from NextJS to pass multisigAddress from root
     const [arrayTransac, setArrayTransac] = useState([]);
     const [lenTransac, setLenTransac] = useState(0);
@@ -26,7 +26,7 @@ export default function transactions(deployedMultisigAddress) {
     // }
     
 
-    function getTransaction(tx_index) { 
+    function GetTransaction(tx_index) { 
       const { data, loading, error } = useStarknetCall({ 
           contract: multisig, 
           method: 'get_transaction',
@@ -48,7 +48,7 @@ export default function transactions(deployedMultisigAddress) {
 
     //Temporary solution until to find a solution to "too many renders issue"
     for(let i=0; i<=10; i++){
-      getTransaction(i);
+      GetTransaction(i);
     }
 
   if (!account) {

@@ -6,7 +6,7 @@ import { useMultisigContract } from '~/hooks/multisig'
 
 export function CreateRule() {
     const { account } = useStarknet()
-    const { contract: multisig } = useMultisigContract()
+    const { contract: multisig } = useMultisigContract("0x030b315a8ace5643032716fa368f022d25ef7fc6b32b8d56c9e29f4fb55327a3")
     const { invoke } = useStarknetInvoke({ contract: multisig, method: 'create_rule' })
     const [recipient, setRecipient] = useState("");
 
