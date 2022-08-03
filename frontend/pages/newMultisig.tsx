@@ -46,6 +46,8 @@ export default function CreateMultisig() {
         return compiled;
     };
 
+    console.log(getCompiledMultisig())
+
     const onDeploy = async () => {
         const _deployMultisig = async () => {
             const Owners = owners.map((o) => number.toBN(o));
