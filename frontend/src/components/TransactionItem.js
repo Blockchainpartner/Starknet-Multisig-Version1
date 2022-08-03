@@ -28,7 +28,7 @@ export function TransactionItem(props) {
         <p>{props.transac.data.tx.num_confirmations.toString()} / 2</p>
 
         </div>
-        <p>calldata of the transaction will be written here with dropdown and buttons to confirm, execute or revoke</p>
+        <p>calldata of the transaction will be written here with dropdown</p>
         
 
         {!Number(props.transac.data.tx.executed.toString()) &&

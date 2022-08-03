@@ -17,8 +17,6 @@ export default function CreateMultisig() {
     const [ownersNumber, setOwnersNumber] = useState<number>(1);
     const [deployedMultisigAddress, setDeployedMultisigAddress] = useState<string>();
 
-
-
     const { account } = useStarknet();
     const { deploy: deployMultisig } = useContractFactory({
         compiledContract: compiledMultisig,
@@ -91,11 +89,11 @@ export default function CreateMultisig() {
 
 
 
-    if (!account) {
-        return (           
-                <PleaseConnectWallet/>           
-        )
-    }
+    // if (!account) {
+    //     return (           
+    //             <PleaseConnectWallet/>           
+    //     )
+    // }
 
     return (
         <div>
