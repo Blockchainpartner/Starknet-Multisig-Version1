@@ -98,63 +98,82 @@ export default function CreateMultisig() {
     // }
 
     return (
-        <div>
-            Number of owners:{" "}
+        <div className=''>
+            <div className="pl-10 pt-5 flex flex-col">
+                <div className='flex flex-row mt-5'>
+                    <h1 className='text-xl font-semibold'>Configure & Deploy a new multisig account</h1>
+                </div>
+                <div className='flex flex-row mt-20'>
+                    <h3>Number of owners:{" "}</h3>
+                    <input
+                        className="border rounded shadow ml-3"
+                        key={0}
+                        value={undefined}
+                        type="number"
+                        defaultValue={1}
+                        onChange={(e) => {
+                            onOwnersNumber(e.target.value)
+                        }} >
+                    </input >
+                </div>
+                <div className='flex flex-row mt-5'>
+                    <h3>
+                        Number of signers:{" "}
+                    </h3>
 
-            <input 
-                className="border border-zinc-700"
-                key={0} 
-                value={undefined} 
-                type="number" 
-                defaultValue={1} 
-                onChange={(e) => {
-                    onOwnersNumber(e.target.value)
-            }} >
-            </input >
-            Number of signers:{" "}
+                    <select
+                        className='ml-3'
+                        onChange={(e) => {
+                            setConfirmationNumber(e.target.value);
+                        }}
+                        value={confirmationNumber}
+                    >
+                        {optionsjSX(ownersNumber as number)}
+                    </select>
+                </div>
 
-            <select
-                onChange={(e) => {
-                    setConfirmationNumber(e.target.value);
-                }}
-                value={confirmationNumber}
-            >
-                {optionsjSX(ownersNumber as number)}
-            </select>
+                <div className='mt-5'>
+                    {
+                        owners.map((owner, i) => {
+                            return (
+                                <div key={i} className="flex flex-col mb-3">
+                                    <div className="flex flex-row">
+                                        Signer {i + 1} address:
+                                        <input
+                                            className="border rounded shadow ml-3 w-1/2"
+                                            type="text"
+                                            onChange={(e) => onChangeOwner(e.target.value, i)}
+                                            value={owner}
+                                        ></input>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    }
+                </div>
 
-            {
-                owners.map((owner, i) => {
-                    return (
-                        <div key={i}>
-                            Signer {i + 1} address:
-                            <input
-                                className="border border-zinc-700"
-                                type="text"
-                                onChange={(e) => onChangeOwner(e.target.value, i)}
-                                value={owner}
-                            ></input>
+
+                <div className='flex flex-row mt-10 justify-start'>
+
+                    < button
+                        className="bg-stone-200 ring-1 ring-zinc-700  mt-5 rounded-lg text-sm font-medium px-1 py-2 w-1/3"
+                        onClick={onDeploy}
+                    >
+                        Deploy Multisig
+                    </button >
+                </div>
+                {
+                    deployedMultisigAddress && (
+                        <div>
+                            Multisig contract has been deployed to:{""}
+                            {deployedMultisigAddress}
                         </div>
-                    );
-                })
-            }
+                    )
+                }
 
-            < button
-                className="bg-stone-200 ring-1 ring-zinc-700 ml-2 rounded-lg text-sm font-medium px-1 py-1"
-                onClick={onDeploy}
-            >
-                Deploy Multisig
-            </button >
+            </div >
+        </div>
 
-            {
-                deployedMultisigAddress && (
-                    <div>
-                        Multisig contract has been deployed to:{""}
-                        {deployedMultisigAddress}
-                    </div>
-                )
-            }
-
-        </div >
 
     )
 }
