@@ -14,8 +14,8 @@ export function SelectMultisig(props) {
         router.push({
             pathname: router.asPath,
             query: { multisigAddress: multisigAddress },
-            }),
-            router.asPath //necessary to reload the page to send multisig address to current page
+            },
+            router.asPath) //necessary to reload the page to send multisig address to current page
     }
 
     return (
