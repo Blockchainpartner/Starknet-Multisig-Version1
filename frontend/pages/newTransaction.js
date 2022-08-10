@@ -1,7 +1,7 @@
 import { useStarknet } from '@starknet-react/core'
 import { SubmitTransaction } from '~/components/SubmitTransaction'
-import { PleaseConnectWallet } from '~/components/PleaseConnectWallet'
 import { useRouter } from 'next/router';
+import { PleaseConnect } from '../src/components/PleaseConnect';
 
 export default function NewTransaction({ props }) {
   const { account } = useStarknet();
@@ -10,8 +10,14 @@ export default function NewTransaction({ props }) {
 
   if (!account) {
     return (
-      <PleaseConnectWallet />
+      <PleaseConnect component="wallet" />
     )
+  }
+
+  if (currentMultisigAddress === ""){
+      return (
+        <PleaseConnect component="multisig" />
+      )
   }
 
   return (

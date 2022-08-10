@@ -5,7 +5,7 @@ import { number } from "starknet";
 import { useContractFactory } from '~/hooks/deploy'
 import multisigABI from "../src/abi/multisig.json";
 import { CompiledContract, json, Abi } from "starknet";
-import { PleaseConnectWallet } from '~/components/PleaseConnectWallet'
+import { PleaseConnect } from '~/components/PleaseConnect'
 
 
 

@@ -1,12 +1,12 @@
 import type { NextPage } from 'next'
 
-const Home: NextPage = () => {
+const Owners: NextPage = () => {
   
   return (
     <div className='flex justify-center pt-3'>
-            <h1>Turbo boosted multisig by BCP</h1>
+            <h1>Coming when smart contract will be modified</h1>
         </div>
   )
 }
 
-export default Home
+export default Owners

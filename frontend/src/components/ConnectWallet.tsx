@@ -22,7 +22,7 @@ export function ConnectWallet() {
     <>
       {connectors.map((connector, idx) => (
         <button className=" bg-stone-200 ring-1 ring-zinc-700 font-medium rounded-lg text-sm px-5 py-2.5 mx-2 my-2" key={idx} onClick={() => connect(connector)}>
-          Connect
+          Connect wallet
         </button>
       ))}
     </>
