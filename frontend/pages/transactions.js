@@ -14,8 +14,6 @@ export default function Transactions() {
   const currentMultisigAddress = router.query.multisigAddress
   const [arrayTransac, setArrayTransac] = useState([]);
   const [lenTransac, setLenTransac] = useState(0);
-  console.log("ms address dans transaction", router.query.multisigAddress)
-
 
   const { account } = useStarknet()
   const { contract: multisig } = useMultisigContract(currentMultisigAddress)

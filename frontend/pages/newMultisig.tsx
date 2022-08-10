@@ -46,13 +46,10 @@ export default function CreateMultisig() {
         return compiled;
     };
 
-    console.log(getCompiledMultisig())
-
     const onDeploy = async () => {
         const _deployMultisig = async () => {
             const Owners = owners.map((o) => number.toBN(o));
             const calldata = [ownersNumber, ...Owners, Number(confirmationNumber)]
-            console.log("call data", calldata)
             const deployment = await deployMultisig({
                 constructorCalldata: calldata,
             });

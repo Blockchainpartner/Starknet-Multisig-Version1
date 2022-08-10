@@ -8,8 +8,6 @@ export default function SideBar() {
     const router = useRouter()
     const [multisigAddress, setMultisigAddress] = useState("")//0x030b315a8ace5643032716fa368f022d25ef7fc6b32b8d56c9e29f4fb55327a3'
     const [submenucollapsed, setSubmenuCollapsed] = useState(false)
-    console.log("i'm in the sidebar and the multisig address is the follwoing:", multisigAddress)
-
 
     // Attention point : Do not use <Link> below props can't be passed through it, prefer useRouter pls
     return (
