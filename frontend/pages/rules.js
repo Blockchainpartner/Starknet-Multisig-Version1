@@ -7,26 +7,25 @@ import { RenderRules } from '../src/components/RenderRules';
 import { CreateRule } from '../src/components/CreateRule';
 
 
-export default function rules() {
+export default function Rules() {
   const { account } = useStarknet()
   const router = useRouter()
   const currentMultisigAddress = router.query.multisigAddress
   const [ruleLen, setRuleLen] = useState()
 
   const { contract: multisig } = useMultisigContract(currentMultisigAddress)
-  if (currentMultisigAddress != "") {
-    const { data, loading, error } = useStarknetCall({
-      contract: multisig,
-      method: 'get_rules_len',
-      args: [],
-    })
+  const { data, loading, error } = useStarknetCall({
+    contract: multisig,
+    method: 'get_rules_len',
+    args: [],
+  })
 
-    useEffect(() => {
-      if (!loading && data) {
-        setRuleLen(data.toString())
-      }
-    }, [data, loading])
-}
+  useEffect(() => {
+    if (!loading && data) {
+      setRuleLen(data.toString())
+    }
+  }, [data, loading])
+
 
 
 

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useStarknet, useStarknetCall } from '@starknet-react/core'
+import { useStarknetCall } from '@starknet-react/core'
 import { useMultisigContract } from '~/hooks/multisig'
-import { toHex } from 'starknet/dist/utils/number'
 import { RuleItem } from '~/components/RuleItem'
 
 
@@ -36,8 +35,6 @@ export function RenderRules(props) {
         GetRule(i, multisig);
     }
 
-    console.log(arrayRules)
-    console.log("je suis render renderRules")
     return (
         <div>
             <h2 className="font-semibold">Existing rules</h2>
