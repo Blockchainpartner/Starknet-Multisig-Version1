@@ -6,7 +6,6 @@ import { useMultisigContract } from '~/hooks/multisig'
 
 export function TransactionItem(props) {
     const { contract: multisig } = useMultisigContract(props.multisigAddress)
-    console.log("etat du hooks multisig :", multisig)
     const { invoke: confirmTransaction } = useStarknetInvoke({ contract: multisig, method: 'confirm_transaction' })
     const { invoke: revokeConfirmation } = useStarknetInvoke({ contract: multisig, method: 'revoke_confirmation' })
     const { invoke: executeTransaction } = useStarknetInvoke({ contract: multisig, method: 'execute_transaction' })

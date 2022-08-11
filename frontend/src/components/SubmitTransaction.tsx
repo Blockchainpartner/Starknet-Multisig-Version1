@@ -1,7 +1,7 @@
 import { useStarknet, useStarknetInvoke } from '@starknet-react/core'
 import React from 'react'
 import { useState } from 'react';
-import { Contract, number } from "starknet";
+import { number } from "starknet";
 import { getSelectorFromName, starknetKeccak } from "starknet/dist/utils/hash";
 import { useMultisigContract } from '~/hooks/multisig'
 import { toBN } from "starknet/dist/utils/number";
