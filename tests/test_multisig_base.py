@@ -155,8 +155,8 @@ async def test_constructor(multisig_factory):
     assert observed.result.owners[1] == owner1.contract_address
 
     expected_confirmations_required = 2
-    observed = await multisig.get_confirmations_required().call()
-    assert observed.result.confirmations_required == expected_confirmations_required
+    observed = await multisig.get_rule(rule_id = 0).call()
+    assert observed.result.rule.num_confirmations_required == expected_confirmations_required
 
 @pytest.mark.asyncio
 async def test_non_owner_submit_transaction(multisig_factory):
@@ -169,16 +169,16 @@ async def test_non_owner_submit_transaction(multisig_factory):
     assert observed.result.res == 0, "Target contract not initialized"
 
     #Submit the first transaction
-    tx_index = 0
     to = target.contract_address
     function_selector = get_selector_from_name("increase_balance")
+    rule_id = 0
     calldata_len = 0
     with pytest.raises(StarkException):
         await not_a_signer0.send_transaction(
             account=not_an_owner0,
             to=multisig.contract_address,
             selector_name="submit_transaction",
-            calldata=[to, function_selector, calldata_len]
+            calldata=[to, function_selector, rule_id, calldata_len]
         )
 
 @pytest.mark.asyncio
@@ -194,12 +194,13 @@ async def test_submit_transaction(multisig_factory):
     tx_index = 0
     to = target.contract_address
     function_selector = get_selector_from_name("increase_balance")
+    rule_id = 0
     calldata_len = 0
     await signer0.send_transaction(
         account=owner0,
         to=multisig.contract_address,
         selector_name="submit_transaction",
-        calldata=[to, function_selector, calldata_len]
+        calldata=[to, function_selector, rule_id, calldata_len]
     )
 
     #Check it was accepted & starts as unconfirmed
@@ -454,12 +455,13 @@ async def test_non_owner_revokes_confirmation(multisig_factory):
     # Submit a new transactions
     to = target.contract_address
     function_selector = get_selector_from_name("increase_balance")
+    rule_id = 0
     calldata_len = 0
     await signer0.send_transaction(
         account=owner0,
         to=multisig.contract_address,
         selector_name="submit_transaction",
-        calldata=[to, function_selector, calldata_len]
+        calldata=[to, function_selector, rule_id, calldata_len]
     )
 
     # Owner0 confirms the transaction
@@ -605,20 +607,21 @@ async def test_execute_with_too_many_transaction(multisig_factory_2):
     assert observed.result.owners[3] == owner3.contract_address
 
     expected_confirmations_required = 3
-    observed = await multisig.get_confirmations_required().call()
-    assert observed.result.confirmations_required == expected_confirmations_required
+    observed = await multisig.get_rule(rule_id = 0).call()
+    assert observed.result.rule.num_confirmations_required == expected_confirmations_required
 
     tx_index = 0
 
     # Submit a new transactions
     to = target.contract_address
     function_selector = get_selector_from_name("increase_balance")
+    rule_id = 0
     calldata_len = 0
     await signer0.send_transaction(
         account=owner0,
         to=multisig.contract_address,
         selector_name="submit_transaction",
-        calldata=[to, function_selector, calldata_len]
+        calldata=[to, function_selector, rule_id, calldata_len]
     )
 
     #Check it was accepted
@@ -700,34 +703,37 @@ async def test_execute_subsequent_transaction(multisig_factory_2):
     # Submit a new transactions
     to = target.contract_address
     function_selector = get_selector_from_name("increase_balance")
+    rule_id = 0
     calldata_len = 0
     await signer0.send_transaction(
         account=owner0,
         to=multisig.contract_address,
         selector_name="submit_transaction",
-        calldata=[to, function_selector, calldata_len]
+        calldata=[to, function_selector, rule_id, calldata_len]
     )
 
     # Submit a new transactions
     to = target.contract_address
     function_selector = get_selector_from_name("increase_balance")
+    rule_id = 0
     calldata_len = 0
     await signer0.send_transaction(
         account=owner0,
         to=multisig.contract_address,
         selector_name="submit_transaction",
-        calldata=[to, function_selector, calldata_len]
+        calldata=[to, function_selector, rule_id, calldata_len]
     )
 
     # Submit a new transactions
     to = target.contract_address
     function_selector = get_selector_from_name("increase_balance")
+    rule_id = 0
     calldata_len = 0
     await signer0.send_transaction(
         account=owner0,
         to=multisig.contract_address,
         selector_name="submit_transaction",
-        calldata=[to, function_selector, calldata_len]
+        calldata=[to, function_selector, rule_id, calldata_len]
     )
 
     #Check it was accepted
@@ -776,8 +782,3 @@ async def test_execute_subsequent_transaction(multisig_factory_2):
 
     observed = await target.get_balance().call()
     assert observed.result.res == 2
-
-
-    
-
-
