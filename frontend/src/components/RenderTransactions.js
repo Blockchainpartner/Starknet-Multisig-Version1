@@ -39,7 +39,9 @@ export function RenderTransactions(props) {
         <div className="m-2">
       <h2 className="font-semibold">Queue transactions</h2>
       {arrayTransactions.length !== 0 &&
-        arrayTransactions.map((item, index) => {
+        arrayTransactions
+        .sort((a, b) => a.tx_index > b.tx_index ? 1 : -1)
+        .map((item, index) => {
           if (item.data.tx.executed.toString() != 1) {
             return (
               <TransactionItem key={index} transac={item} multisigAddress={props.currentMultisigAddress} />
@@ -48,7 +50,9 @@ export function RenderTransactions(props) {
         })}
       <h2 className="font-semibold">History</h2>
       {arrayTransactions.length !== 0 &&
-        arrayTransactions.map((item, index) => {
+        arrayTransactions
+        .sort((a, b) => a.tx_index > b.tx_index ? 1 : -1)
+        .map((item, index) => {
           if (item.data.tx.executed.toString() != 0) {
             return (
               <TransactionItem key={index} transac={item} multisigAddress={props.currentMultisigAddress} />
