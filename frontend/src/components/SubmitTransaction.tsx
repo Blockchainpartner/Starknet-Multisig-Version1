@@ -36,7 +36,7 @@ export function SubmitTransaction(props: any) {
         const ruleId = number.toBN(sumbitRuleId)
         const goodParameters = formatSubmittedParameters(submitParameters)
         await submitTransaction({
-            args: [submitAddress, newSelector, '0x0', goodParameters], //to change '0x0' to ruleID 
+            args: [submitAddress, newSelector, ruleId, goodParameters],
             metadata: { method: 'submit_transaction', message: 'increment counter by 1' },
         })
     };
