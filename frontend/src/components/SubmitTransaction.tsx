@@ -14,7 +14,7 @@ export function SubmitTransaction(props: any) {
     const { contract: multisig } = useMultisigContract(props.address)
     const { invoke: submitTransaction } = useStarknetInvoke({ contract: multisig, method: "submit_transaction" })
     const [submitParameters, setSubmitParameters] = useState<string>("");
-    const [sumbitRuleId, setSubmitRuleId] = useState<number>();
+    const [sumbitRuleId, setSubmitRuleId] = useState<string>(""); //causes an error because it changes from undefined to controlled input
     const [submitAddress, setSubmitAddress] = useState<string>("");
     const [submitfonction, setSubmitFunction] = useState<string>("");
 
@@ -37,52 +37,48 @@ export function SubmitTransaction(props: any) {
         const goodParameters = formatSubmittedParameters(submitParameters)
         await submitTransaction({
             args: [submitAddress, newSelector, ruleId, goodParameters],
-            metadata: { method: 'submit_transaction', message: 'increment counter by 1' },
+            metadata: { method: submitfonction, message: 'to add later' },
         })
     };
-
-    const onRuleNumber = (value: string) => {
-        setSubmitRuleId(Number(value));
-    };
-
 
     if (!account) {
         return null
     }
 
     return (
-        <div className='mt-5 flex flex-col w-2/3'>
+        <div className='mt-5 flex flex-col mx-32'>
+            <h3 className='mb-2 text-sm font-medium text-gray-900'>Custom transaction</h3>
             <input
                 className="border-b border-dashed border-zinc-700 mb-3"
                 type="text"
                 value={submitAddress}
-                placeholder="contract Address"
+                placeholder="Contract address"
                 onChange={(e) => setSubmitAddress(e.target.value)}
             ></input>
             <input
                 className="border-b border-dashed border-zinc-700 mb-3"
                 type="text"
                 value={submitfonction}
-                placeholder="function Name"
+                placeholder="Function name"
                 onChange={(e) => setSubmitFunction(e.target.value)}
             ></input>
             <input
                 className="border-b border-dashed border-zinc-700 mb-3"
                 type="number"
                 value={sumbitRuleId}
-                placeholder="rule id"
-                onChange={(e) => onRuleNumber(e.target.value)}
+                placeholder="Rule ID"
+                onChange={(e) => setSubmitRuleId(e.target.value)}
             ></input>
             <input
                 className="border-b border-dashed border-zinc-700 mb-3"
                 type="text"
                 value={submitParameters}
-                placeholder="function Parameters"
+                placeholder="Function parameters"
                 onChange={(e) => setSubmitParameters(e.target.value)}
             ></input>
 
             <button
-                className="bg-stone-200 ring-1 ring-zinc-700 ml-2 mt-5 rounded-lg text-sm font-medium px-1 py-2 w-2/3 "
+                className="bg-gradient-to-r hover:bg-gradient-to-l from-kpmg_purple to-kpmg_cobalt text-white ring-1 ring-zinc-700 mt-5 rounded-lg text-sm font-medium px-1 py-2 mx-40"
                 onClick={submit}
             >
                 Submit Transaction
