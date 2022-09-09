@@ -37,7 +37,7 @@ export function RenderRules(props) {
 
     return (
         <div>
-            <h2 className="font-semibold">Existing rules</h2>
+            <h2 className="font-semibold m-2 text-kpmg_dark_blue">Existing rules</h2>
             {/* <div className="flex justify-between m-3">
                 <h3>Rule number</h3>
                 <h3>Beneficiary</h3>
@@ -46,13 +46,13 @@ export function RenderRules(props) {
                 <h3>Asset</h3>
                 <h3>Confirmations required</h3>
             </div> */}
-            <div className="grid gap-4 grid-cols-6 place-items-center">
+            <div className="grid grid-flow-col place-items-center">
                 <h3>Rule number</h3>
                 <h3>Beneficiary</h3>
                 <h3>Recipient</h3>
-                <span className=''>Allowed Amount</span>
-                <h3>Asset</h3>
-                <span>Confirmations required</span>
+                <h3 className=''>Allowed Amount</h3>
+                <h3 className=''>Asset</h3>
+                <h3 className=''>Confirmations required</h3>
             </div>
             {
                 arrayRules

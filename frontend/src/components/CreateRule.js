@@ -60,7 +60,7 @@ export function CreateRule(props) {
 
     return (
         <div className='flex justify-center'>
-            <button className="mt-2 px-1 py-2 rounded-lg bg-stone-200 ring-1 ring-zinc-700 text-gray-600" onClick={() => openModal()}>Create a new rule</button>
+            <button className="mt-2 px-5 py-2.5 rounded-lg ring-1 ring-zinc-700 bg-gradient-to-r hover:bg-gradient-to-l from-kpmg_purple to-kpmg_cobalt text-white" onClick={() => openModal()}>Create a new rule</button>
 
             {showModal && (
                 <>
@@ -89,7 +89,7 @@ export function CreateRule(props) {
                                                 return (
                                                     <div>
                                                         <p>Beneficiary</p>
-                                                        <input className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="0x1a2b3...6f9z (owner address) or 0"
+                                                        <input className="bg-gradient-to-r from-kpmg_purple to-kpmg_cobalt text-white border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 placeholder-white/50" placeholder="0x1a2b3...6f9z (owner address) or 0"
                                                             onChange={(e) => setSubmittedOwner(e.target.value)} value={submittedOwner} />
                                                         <p>Warning, you can create this rule for all owners if you set the field to 0</p>
                                                         {/*footer*/}
@@ -100,7 +100,7 @@ export function CreateRule(props) {
                                                             <div className="">
                                                                 
                                                                 <button
-                                                                    className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
+                                                                    className="bg-kpmg_cobalt text-white font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
                                                                     type="button"
                                                                     onClick={() => incrementModalPage()}
                                                                 >
@@ -115,7 +115,7 @@ export function CreateRule(props) {
                                                 return (
                                                     <div>
                                                         <p>Recipient</p>
-                                                        <input className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="0x1a2b3...6f9z (account or smart contract) or 0"
+                                                        <input className="bg-gradient-to-r from-kpmg_purple to-kpmg_cobalt text-white border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 placeholder-white/50" placeholder="0x1a2b3...6f9z (account or smart contract) or 0"
                                                             onChange={(e) => setSubmittedRecipient(e.target.value)} value={submittedRecipient}/>
                                                         <p>Warning, you can create this rule for any recipient if you set the field to 0</p>
                                                         {/*footer*/}
@@ -125,14 +125,14 @@ export function CreateRule(props) {
                                                             </div>
                                                             <div className="">
                                                                 <button
-                                                                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
+                                                                    className="text-kpmg_pink background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
                                                                     type="button"
                                                                     onClick={() => decrementModalPage()}
                                                                 >
                                                                     Back
                                                                 </button>
                                                                 <button
-                                                                    className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
+                                                                    className="bg-kpmg_cobalt text-white font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
                                                                     type="button"
                                                                     onClick={() => incrementModalPage()}
                                                                 >
@@ -146,7 +146,7 @@ export function CreateRule(props) {
                                                 return (
                                                     <div>
                                                         <p>Asset</p>
-                                                        <input className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="0x1a2b3...6f9z (asset address) or 0"
+                                                        <input className="bg-gradient-to-r from-kpmg_purple to-kpmg_cobalt text-white border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 placeholder-white/50" placeholder="0x1a2b3...6f9z (asset address) or 0"
                                                             onChange={(e) => setSubmittedAsset(e.target.value)} value={submittedAsset}/>
                                                         <p>Warning, you can create this rule for any asset if you set the field to 0</p>
                                                         {/*footer*/}
@@ -156,14 +156,14 @@ export function CreateRule(props) {
                                                             </div>
                                                             <div className="">
                                                                 <button
-                                                                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
+                                                                    className="text-kpmg_pink background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
                                                                     type="button"
                                                                     onClick={() => decrementModalPage()}
                                                                 >
                                                                     Back
                                                                 </button>
                                                                 <button
-                                                                    className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
+                                                                    className="bg-kpmg_cobalt text-white font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
                                                                     type="button"
                                                                     onClick={() => incrementModalPage()}
                                                                 >
@@ -177,7 +177,7 @@ export function CreateRule(props) {
                                                 return (
                                                     <div>
                                                         <p>Allowed Amount</p>
-                                                        <input className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="e.g: 0, 2.5, 1000"
+                                                        <input className="bg-gradient-to-r from-kpmg_purple to-kpmg_cobalt text-white border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 placeholder-white/50" placeholder="e.g: 0, 2.5, 1000"
                                                             onChange={(e) => setSubmittedAllowedAmount(e.target.value)} value={submittedAllowedAmount} />
                                                         <p>Warning, you can create this rule for any amount if you set the field to 0</p>
                                                         {/*footer*/}
@@ -187,14 +187,14 @@ export function CreateRule(props) {
                                                             </div>
                                                             <div className="">
                                                                 <button
-                                                                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
+                                                                    className="text-kpmg_ping background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
                                                                     type="button"
                                                                     onClick={() => decrementModalPage()}
                                                                 >
                                                                     Back
                                                                 </button>
                                                                 <button
-                                                                    className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
+                                                                    className="bg-kpmg_cobalt text-white font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
                                                                     type="button"
                                                                     onClick={() => incrementModalPage()}
                                                                 >
@@ -208,7 +208,7 @@ export function CreateRule(props) {
                                                 return (
                                                     <div>
                                                         <p>Number of required confirmations</p>
-                                                        <input className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="e.g: 1, 2, 3"
+                                                        <input className="bg-gradient-to-r from-kpmg_purple to-kpmg_cobalt text-white border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 placeholder-white/50" placeholder="e.g: 1, 2, 3"
                                                             onChange={(e) => setSubmittedRequiredConfirmations(e.target.value)} value={submittedRequiredConfirmations}/>
                                                         <p>All owners of the multisig will need to confirm the creation of the rule</p>
                                                         {/*footer*/}
@@ -218,14 +218,14 @@ export function CreateRule(props) {
                                                             </div>
                                                             <div className="">
                                                                 <button
-                                                                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
+                                                                    className="text-kpmg_pink background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
                                                                     type="button"
                                                                     onClick={() => decrementModalPage()}
                                                                 >
                                                                     Back
                                                                 </button>
                                                                 <button
-                                                                    className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
+                                                                    className="bg-kpmg_cobalt text-white font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 ease-linear transition-all duration-150"
                                                                     type="button"
                                                                     onClick={() => submitRule()}
                                                                 >

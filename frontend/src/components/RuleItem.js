@@ -3,7 +3,7 @@ import { toHex, toFelt } from 'starknet/dist/utils/number'
 export function RuleItem(props) {
 
   return (
-    <div className="grid gap-4 grid-cols-6 place-items-center my-4 p-2 shadow-xl bg-stone-200 border rounded-lg">
+    <div className="grid gap-4 grid-cols-6 place-items-center my-4 p-2 shadow-xl bg-gradient-to-r from-kpmg_pacific_blue to-kpmg_light_blue border rounded-lg">
         {/* <div className="flex flex-row justify-between "> */}
         {/* <p>{console.log("props inside component is :", props)}</p> */}
         {/* <p>{console.log("calldata_len:", props.transac.tx_calldata_len)}</p> */}

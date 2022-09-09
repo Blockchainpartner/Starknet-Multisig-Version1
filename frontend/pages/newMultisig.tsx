@@ -95,7 +95,7 @@ export default function CreateMultisig() {
     // }
 
     return (
-        <div className=''>
+        <div className='text-kpmg_dark_blue'>
             <div className="pl-10 pt-5 flex flex-col">
                 <div className='flex flex-row mt-5'>
                     <h1 className='text-xl font-semibold'>Configure & Deploy a new multisig account</h1>
@@ -153,7 +153,7 @@ export default function CreateMultisig() {
                 <div className='flex flex-row mt-10 justify-start'>
 
                     < button
-                        className="bg-stone-200 ring-1 ring-zinc-700  mt-5 rounded-lg text-sm font-medium px-1 py-2 w-1/3"
+                        className="bg-gradient-to-r from-kpmg_purple to-kpmg_cobalt text-white ring-1 ring-zinc-700  mt-5 rounded-lg text-sm font-medium px-1 py-2 w-1/3"
                         onClick={onDeploy}
                     >
                         Deploy Multisig

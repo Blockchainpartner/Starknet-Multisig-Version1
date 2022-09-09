@@ -3,8 +3,6 @@ import { useStarknetCall } from '@starknet-react/core'
 import { useMultisigContract } from '~/hooks/multisig'
 import { TransactionItem } from '~/components/TransactionItem'
 
-
-
 export function RenderTransactions(props) {
     const [arrayTransactions, setArrayTransactions] = useState([])
 
@@ -36,7 +34,7 @@ export function RenderTransactions(props) {
     }
 
     return (
-        <div className="m-2">
+        <div className="m-2 text-kpmg_dark_blue">
       <h2 className="font-semibold">Queue transactions</h2>
       {arrayTransactions.length !== 0 &&
         arrayTransactions
