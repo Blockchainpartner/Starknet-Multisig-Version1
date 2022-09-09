@@ -946,3 +946,83 @@ async def test_creation_rule_without_asset_but_with_amount(multisig_factory):
 
 
 #Special rule to create rule 
+
+# #Test with float amount for token transfer
+# @pytest.mark.asyncio
+# async def test_execute_transaction_float_amount(multisig_factory):
+#     """ Should be successful because the function called is erc20's transfer function"""
+#     starknet, multisig, target, owner0, owner1, owner2, owner3, _, erc20_token = multisig_factory
+
+#     observed = await multisig.get_transactions_len().call()
+#     tx_index = observed.result.res
+    
+#     # Submit the transaction
+#     to = erc20_token.contract_address
+#     function_selector = get_selector_from_name("transfer")
+#     calldata_function_len = 3
+#     # Send 10 tokens from multisig to owner1 - should be allowed by rule 3 with 2 expected confirmations
+#     # Attention point, it's not possible to send the array directly
+#     calldata_function = [owner1.contract_address, 0.5, 0]
+#     rule_id = 2
+#     await signer2.send_transaction(
+#         account=owner2,
+#         to=multisig.contract_address,
+#         selector_name="submit_transaction",
+#         calldata=[to, function_selector, rule_id, calldata_function_len, calldata_function[0], calldata_function[1], calldata_function[2]]
+#     )
+
+#     #Check it was accepted
+#     observed = await multisig.get_transactions_len().call()
+#     assert observed.result.res == tx_index + 1
+#     observed = await multisig.get_transaction(tx_index).call()
+#     assert observed.result.tx_calldata[0] == owner1.contract_address
+#     assert observed.result.tx_calldata[1] == 0.5
+
+#     observed = await multisig.get_transactions_len().call()
+#     tx_index = observed.result.res - 1
+
+#     # Confirm the transaction for owner0
+#     await signer0.send_transaction(
+#         account=owner0,
+#         to=multisig.contract_address,
+#         selector_name="confirm_transaction",
+#         calldata=[tx_index]
+#     )
+
+#     # Confirm the transaction for owner1
+#     await signer1.send_transaction(
+#         account=owner1,
+#         to=multisig.contract_address,
+#         selector_name="confirm_transaction",
+#         calldata=[tx_index]
+#     )
+
+#     # Check the transaction is confirmed by only 2 owners
+#     observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner0.contract_address).call()
+#     assert observed.result.res == TRUE
+#     observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner1.contract_address).call()
+#     assert observed.result.res == TRUE
+#     observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner2.contract_address).call()
+#     assert observed.result.res == FALSE
+#     observed = await multisig.is_confirmed(tx_index=tx_index, owner=owner3.contract_address).call()
+#     assert observed.result.res == FALSE
+
+#     # Should be executed even if there are only 2 confirmations
+#     await signer0.send_transaction(
+#         account=owner0,
+#         to=multisig.contract_address,
+#         selector_name="execute_transaction",
+#         calldata=[tx_index]
+#     )
+
+#     # Check the transaction has been executed
+#     observed = await multisig.is_executed(tx_index=tx_index).call()
+#     assert observed.result.res == TRUE
+#     observed = await erc20_token.balanceOf(owner1.contract_address).call()
+#     assert observed.result.balance.low == 10.5
+#     observed = await erc20_token.balanceOf(multisig.contract_address).call()
+#     assert observed.result.balance.low == 489.5
+
+#     # Check the remaining amount allowed in the rule 
+#     observed = await multisig.get_rule(rule_id=2).call()
+#     assert observed.result.rule.allowed_amount == 89.5

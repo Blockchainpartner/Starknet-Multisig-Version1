@@ -3,7 +3,7 @@
 
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import assert_le, assert_lt
+from starkware.cairo.common.math import assert_not_zero, assert_le, assert_lt
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_contract_address
 
@@ -805,8 +805,14 @@ func _update_allowed_amount{
     ):
     let (tx, tx_calldata_len, tx_calldata) = get_transaction(tx_index=tx_index)
     if tx.function_selector == TRANSFER_SELECTOR:
+        # Rajouter ici le fait de ne pas soustraire si c'est une règle sans allowed amount 
         let (allowed_amount) = _rules.read(rule_id=tx.rule_id, field=Rule.allowed_amount)
         let (sent_amount) = _transaction_calldata.read(tx_index=tx_index, calldata_index=1)
+        # require allowed amount pas zero
+        assert_not_zero(allowed_amount)
+        assert_lt(sent_amount, allowed_amount)
+        # require sent amount <= allowed amount  
+        # Besoin d'ecrire plusieurs tests pour tester ce scenario
         _rules.write(rule_id=tx.rule_id, field=Rule.allowed_amount, value=allowed_amount - sent_amount)
         return ()
     end
