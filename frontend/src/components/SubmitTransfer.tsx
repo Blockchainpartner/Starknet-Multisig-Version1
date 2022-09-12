@@ -70,23 +70,26 @@ export function SubmitTransfer(props: any) {
         const BNqty = number.toBN(stringqty)
 
         const tabParameters = [submitAddress, BNqty, toBN("0")] //toBN("0") is for the right part of Uint256, left part covers 2^127 
-
         await submitTransaction({
             args: [submitToken.l2_token_address, TRANSFER_SELECTOR, ruleId, tabParameters], //selector must be a BN
             metadata: { method: "transfer", message: 'transfer' },
         })
     };
 
-    const onChangeToken = (value: string) => {
-        switch (value) {
-            case ("ETH"):
+    const handleChangeToken = (event: string) => {
+        switch (event){
+            case("ETH"):
                 setSubmitToken(ETH)
-            case ("DAI"):
-                setSubmitToken(DAI)
-            case ("USDC"):
-                setSubmitToken(USDC)
-            case ("WBTC"):
+                break
+            case("WBTC"):
                 setSubmitToken(WBTC)
+                break
+            case("DAI"):
+                setSubmitToken(DAI)
+                break
+            case("USDC"):
+                setSubmitToken(USDC)
+                break
         }
     };
 
@@ -99,7 +102,7 @@ export function SubmitTransfer(props: any) {
 
             <label className="block mb-2 text-sm font-medium text-gray-900">Select token to transfer</label>
             <select id="countries" className="mb-2 px-1 py-2 bg-gradient-to-r from-kpmg_purple to-kpmg_cobalt text-white border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            onChange={e => onChangeToken(e.target.value)}>
+            onChange={(e) => handleChangeToken(e.target.value)}>
                 <option value="ETH">ETH</option>
                 <option value="DAI">DAI</option>
                 <option value="USDC">USDC</option>
