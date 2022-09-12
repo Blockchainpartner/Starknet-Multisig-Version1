@@ -65,8 +65,10 @@ export function TransactionItem(props: any) {
     switch (selector) {
       case ("232670485425082704932579856502088130646006032362877466777181098476241604910"):
         return ("Transfer")
+        break
       case ("520213141508092629119819457006537688644568527244809528963486451688951563129"):
         return ("Rule creation")
+        break
       default:
         return ("Unknown function")
     }
@@ -111,9 +113,9 @@ export function TransactionItem(props: any) {
         return (
           <div>
             <p><b>To: </b>{toHex(props.transac.data.tx.to).substring(0,6)}...{toHex(props.transac.data.tx.to).substring(62)}</p>
-            <p><b>Transaction's calldata: </b></p>
-            {props.transac.data.tx_calldata.map((calldata: any) => (
-              <p>{toHex(calldata)}</p>
+            <p><b>Transaction calldata: </b></p>
+            {props.transac.data.tx_calldata.map((key: number, calldata: any) => (
+              <p key={key}>{toHex(calldata)}</p>
             ))}
           </div>
         )
@@ -145,7 +147,9 @@ export function TransactionItem(props: any) {
               args: [props.transac.tx_index],
               metadata: { method: 'revoke_confirmation', message: 'revoke transac' },
             })}>Revoke </button>
-          <button className="text-white bg-kpmg_purple font-medium rounded-lg text-sm px-5 py-2.5 mx-1" onClick={() =>
+          <button className="text-white bg-kpmg_purple font-medium rounded-lg text-sm px-5 py-2.5 mx-1 disabled:opacity-30 disabled:cursor-not-allowed" 
+          //disabled={true} Will be added when it will be possible to get data without having to do extra calls to the API 
+          onClick={() =>
             executeTransaction({
               args: [props.transac.tx_index],
               metadata: { method: 'execute transaction', message: 'execute transac' },
